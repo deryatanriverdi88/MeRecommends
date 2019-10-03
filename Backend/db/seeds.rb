@@ -18,12 +18,11 @@ long_beach = Location.create(name: "Long Beach", state: "New York")
 
 # RECOMMENDATIONS
 
-amber_steakhouse = Recommendation.create(user: derya, location: brooklyn, type_of: "Restaurant", description: "It is very good!", price_range: "$$$", rate: 5, place: "Amber Steakhouse")
+amber_steakhouse = Recommendation.create(user: derya, location: brooklyn, type_of: "Restaurant", description: "It is very good!", price_range: "$$$", rate: 5, place: "Amber Steakhouse",  like: 0)
 
-jojo_restaurant = Recommendation.create(user: kevin, location: manhattan, type_of: "Restaurant", description: "It is very pricey!", price_range: "$$$$", rate: 2, place: "Jojo Restaurant")
+jojo_restaurant = Recommendation.create(user: kevin, location: manhattan, type_of: "Restaurant", description: "It is very pricey!", price_range: "$$$$", rate: 2, place: "Jojo Restaurant", like: 0)
 
 #LIKES
 
-like_1 = Like.create(recommendation: amber_steakhouse)
 
 puts "It is seeded 🍇"

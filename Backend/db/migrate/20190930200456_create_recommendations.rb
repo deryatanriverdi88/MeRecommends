@@ -8,6 +8,7 @@ class CreateRecommendations < ActiveRecord::Migration[6.0]
       t.string :price_range
       t.integer :rate
       t.string :place
+      t.integer :like
 
       t.timestamps
     end

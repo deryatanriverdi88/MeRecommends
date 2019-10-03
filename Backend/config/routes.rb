@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  resources :likes
+  
   resources :recommendations
   resources :locations
   resources :users

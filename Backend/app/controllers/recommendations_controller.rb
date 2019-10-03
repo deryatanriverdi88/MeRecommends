@@ -20,9 +20,15 @@ class RecommendationsController < ApplicationController
          render json: recommendation
      end
 
+     def destroy
+       recommendation = Recommendation.find(params[:id])
+       recommendation.destroy
+       render json: recommendation
+     end
+
      private
      def recommedation_params
-         params.permit(:user_id, :location_id, :type_of, :place, :rate, :description, :price_range)
+         params.permit(:user_id, :location_id, :type_of, :place, :rate, :description, :price_range, :like)
      end
 
 end

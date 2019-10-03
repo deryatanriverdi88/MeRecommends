@@ -11,7 +11,7 @@ let userShowDiv = document.querySelector("#user-show-div")
 let locationViewDiv = main.querySelector("#location-view")
 let recommendationUl = locationViewDiv.querySelector(".recommendation-ul")
 let showMyReview = document.getElementById("show-my-review")
-let deleteRecommendation = showMyReview.querySelector('#delete-recommendation')
+
 
 
 body.addEventListener('mouseover', function(e){
@@ -118,13 +118,15 @@ function slapLocation(location){
 function slapRecommendation(recommendation){
   recommendationUl.innerHTML += ""
   locationViewDiv.append(recommendationUl) //why?
-  recommendationUl.innerHTML +=`<ul class="recommendation" data-id="${recommendation.id}">
+  recommendationUl.innerHTML +=`
+  <ul class="recommendation" data-id="${recommendation.id}">
      <li> Type of: ${recommendation.type_of}</li>
      <li> Place: ${recommendation.place}</li>
      <li> Description: ${recommendation.description}</li>
      <li> Rate: ${recommendation.rate}</li>
-     <li> Pricee Range: ${recommendation.price_range}</li>
-  </ul>  `}
+     <li> Price Range: ${recommendation.price_range}</li>
+  </ul>
+  <button data-id="${recommendation.id}" data-likes="${recommendation.like}" class="like-button"> <span class="like">${recommendation.like} </span>Like </button> `}
 
 function showMyRecommendation(recommendation){
     // locationViewDiv.append(recommendationUl) //why?
@@ -162,13 +164,11 @@ function logOutButton(){
 locationViewDiv.addEventListener('click', e => {
     recommendationUl.innerHTML = ""
   if(e.target.tagName === 'LI'){
-    console.log(e.target)
     let id = e.target.dataset.id
     fetch(`http://localhost:3000/locations/${id}`)
      .then(res=>res.json())
      .then(object => object.recommendations.forEach(function(recommendation){
        slapRecommendation(recommendation)
-
      }))
 
   }
@@ -239,6 +239,40 @@ signUpDiv.addEventListener('click', e=>{
   }
 })
 
+showMyReview.addEventListener('click', e => {
+  if(e.target.id === "delete-recommendation"){
+    fetch(`http://localhost:3000/recommendations/${e.target.dataset.id}`, {
+      method: 'DELETE'
+    })
+    showMyReview.innerHTML = `<p> Review Deleted! </p>`
+  }
+})
+
+recommendationUl.addEventListener('click', e => {
+  // e.preventDefault()
+  if(e.target.className === "like-button"){
+    let likeAmount = e.target.dataset.likes
+    likeAmount++
+    let id = e.target.dataset.id
+    let likeSpan =  recommendationUl.querySelector('.like')
+
+    fetch(`http://localhost:3000/recommendations/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type':'application/json',
+        'Accept':'application/json'
+      },
+      body: JSON.stringify({
+        like: likeAmount
+      })
+    })
+    .then(res => res.json())
+    .then(object =>{
+      slapRecommendation(object)
+    })
+  }
+})
+
 
 if (localStorage.id){
   fetch(`http://localhost:3000/users/${localStorage.id}`)
@@ -248,7 +282,7 @@ if (localStorage.id){
       logOutButton()
       writeReview()
     })
-}
+} 
 
 function writeReview(){
   let writeReviewButton = signUpDiv.querySelector('#write-review-button')
@@ -291,7 +325,7 @@ function writeReview(){
 
          .then(res=>res.json())
          .then(recommendation => {
-          slapRecommendation(recommendation) /// THEN I SLAP RECOMMENDATIONS ON TO THE DOM
+          showMyRecommendation(recommendation) /// THEN I SLAP RECOMMENDATIONS ON TO THE DOM
          })
 
          typeOf.value = ""
@@ -305,5 +339,3 @@ function writeReview(){
     })
   })
 }
-
-// debugger
