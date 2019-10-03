@@ -30,7 +30,7 @@ ActiveRecord::Schema.define(version: 2019_09_30_200456) do
     t.string "price_range"
     t.integer "rate"
     t.string "place"
-    t.integer "like"
+    t.integer "like", default: 0
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["location_id"], name: "index_recommendations_on_location_id"

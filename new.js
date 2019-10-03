@@ -79,6 +79,7 @@ function postFetchForSignUp() {
     localStorage.clear()
     localStorage.id = user.id
     slapUser(user)
+    logOutButton()
   })
 }
 
@@ -130,13 +131,17 @@ function slapRecommendation(recommendation){
 
 function showMyRecommendation(recommendation){
     // locationViewDiv.append(recommendationUl) //why?
+    showMyReview.innerHTML =""
     showMyReview.innerHTML +=`
        <li> Type of: ${recommendation.type_of}</li>
        <li> Place: ${recommendation.place}</li>
        <li> Description: ${recommendation.description}</li>
        <li> Rate: ${recommendation.rate}</li>
-       <li> Pricee Range: ${recommendation.price_range}</li>
-    </ul>  <br> <button data-id="${recommendation.id}" id="delete-recommendation"> Delete your recommendation </button>`  }
+       <li> Price Range: ${recommendation.price_range}</li>
+    </ul>  <br>
+
+    <button data-id="${recommendation.id}" id="delete-recommendation"> Delete your recommendation </button>`
+    }
 
 function fetchLocations(){
   fetch('http://localhost:3000/locations')
@@ -157,7 +162,7 @@ function logOutButton(){
   logOutButton.addEventListener('click', e=>{
     localStorage.clear()
     signUpDiv.innerHTML = ""
-    main.innerHTML = ""
+    locationViewDiv.innerHTML = ""
   })
 }
 
@@ -183,7 +188,9 @@ signUpButton.addEventListener('click', e => {
     e.preventDefault()
     postFetchForSignUp()
     logOutButton()
+    locationViewDiv.innerHTML = ""
     writeReview()
+
   })
 })
 
@@ -201,12 +208,16 @@ signInButton.addEventListener('click', e => {
         })
       if (user){
         slapUser(user)
+        localStorage.id = user.id
+        logOutButton()
+        writeReview()
+
       } else {
         signUpDiv.innerHTML = `<p>This username does not exist</p>`
       }
-      localStorage.id = user.id
-      logOutButton()
-      writeReview()
+      // localStorage.id = user.id
+      // logOutButton()
+      // writeReview()
 
    })
   })
@@ -227,6 +238,8 @@ signUpDiv.addEventListener('click', e=>{
       method: 'DELETE'
     })
     signUpDiv.innerHTML = `<p> Account Deleted! </p>`
+    localStorage.clear()
+
 
   } else if (e.target.id === "my-reviews"){
     fetch(`http://localhost:3000/users/${localStorage.id}`)
@@ -282,12 +295,14 @@ if (localStorage.id){
       logOutButton()
       writeReview()
     })
-} 
+}
+
 
 function writeReview(){
   let writeReviewButton = signUpDiv.querySelector('#write-review-button')
-  writeReviewButton.addEventListener('click', e =>{
-    console.log(e.target);
+  signUpDiv.addEventListener('click', e =>{
+
+    if (e.target.id === "write-review-button"){
     locationViewDiv.innerHTML =""
     fetchLocations()
     locationViewDiv.innerHTML += "<h3> Click a location to make a review</h3>"
@@ -337,5 +352,6 @@ function writeReview(){
        })  /// This closes => formforReview.addEventListener
       }
     })
+  }
   })
 }
