@@ -1,0 +1,50 @@
+header{
+  grid-area: header;
+  background-color: red;
+  height: 20vh;
+}
+
+nav{
+  grid-area: nav;
+  background-color: pink;
+  height: 70vh;
+}
+
+#main{
+  grid-area: main;
+  background-color: lightblue;
+  padding: 20px;
+
+}
+
+footer{
+  grid-area: footer;
+  background-color: green;
+
+}
+
+.grid-container {
+  display: grid;
+  grid-template-areas:
+    'header header header header header header'
+    'nav main main main main main '
+    'footer footer footer footer footer footer';
+  grid-gap: 10px;
+
+  padding: 10px;
+}
+
+header h1{
+  color:white;
+  text-align: center;
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+li{
+  list-style-type: none;
+}
+
+.new-review input{
+  display: block;
+}
