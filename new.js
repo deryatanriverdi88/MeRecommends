@@ -1,14 +1,17 @@
+
+
+
 let body = document.querySelector("body")
 let main = document.getElementById("main")
-
 let signUpButton = document.getElementById('sign-up-button')
 let signInButton = document.getElementById('sign-in-button')
 let signUpDiv = document.getElementById("sign-div")
 let h1 = document.querySelector("h1")
 let userShowDiv = document.querySelector("#user-show-div")
-
-
-
+let locationViewDiv = main.querySelector("#location-view")
+let recommendationUl = locationViewDiv.querySelector(".recommendation-ul")
+let showMyReview = document.getElementById("show-my-review")
+let deleteRecommendation = showMyReview.querySelector('#delete-recommendation')
 
 
 body.addEventListener('mouseover', function(e){
@@ -44,14 +47,15 @@ function reviewForm(userId, locationId){
         <input data-id= "${locationId}"id="location" type="hidden" name="location" p/>
         <label for="type_of"> Type </label>
         <input id="type-of" name="type-of" type="text" />
-        <label for="description"> Description </label>
-        <input id="description" name="description" type="text" />
         <label for="price-range"> Price Range </label>
         <input id="price-range" name="price-range" type="text"/>
         <label for="rate"> Rate </label>
         <input id="rate" type="number" name="rate" />
         <label for="place"> Place </label>
         <input id="place" name="place" type="text"/>
+        <label for="description"> Description </label>
+        <!-- <textarea id="description" name="description" rows="8" cols="80"></textarea> -->
+        <input id="description" name="description" type="text" />
         <input type="submit" value="Create a Review" class="sign-up-submit">
       </form>`
 }
@@ -108,11 +112,13 @@ function slapUser(user){
 }
 
 function slapLocation(location){
-  main.innerHTML += `<ul><li id="location" data-id="${location.id}"> ${location.name} / ${location.state}</li> </ul>`
+  locationViewDiv.innerHTML += `<ul><li id="location" data-id="${location.id}"> ${location.name} / ${location.state}</li> </ul>`
 }
 
 function slapRecommendation(recommendation){
-  main.innerHTML +=`<ul id="recommendation" data-id="${recommendation.id}">
+  recommendationUl.innerHTML += ""
+  locationViewDiv.append(recommendationUl) //why?
+  recommendationUl.innerHTML +=`<ul class="recommendation" data-id="${recommendation.id}">
      <li> Type of: ${recommendation.type_of}</li>
      <li> Place: ${recommendation.place}</li>
      <li> Description: ${recommendation.description}</li>
@@ -120,15 +126,26 @@ function slapRecommendation(recommendation){
      <li> Pricee Range: ${recommendation.price_range}</li>
   </ul>  `}
 
+function showMyRecommendation(recommendation){
+    // locationViewDiv.append(recommendationUl) //why?
+    showMyReview.innerHTML +=`
+       <li> Type of: ${recommendation.type_of}</li>
+       <li> Place: ${recommendation.place}</li>
+       <li> Description: ${recommendation.description}</li>
+       <li> Rate: ${recommendation.rate}</li>
+       <li> Pricee Range: ${recommendation.price_range}</li>
+    </ul>  <br> <button data-id="${recommendation.id}" id="delete-recommendation"> Delete your recommendation </button>`  }
+
 function fetchLocations(){
   fetch('http://localhost:3000/locations')
   .then(res=>res.json())
   .then(locationArray => locationArray.forEach(function(location){
       slapLocation(location)
-
     })
   )
 }
+
+fetchLocations()
 
 function logOutButton(){
   let logOutButton = document.createElement("button")
@@ -142,7 +159,20 @@ function logOutButton(){
   })
 }
 
-// fetchLocations()
+locationViewDiv.addEventListener('click', e => {
+    recommendationUl.innerHTML = ""
+  if(e.target.tagName === 'LI'){
+    console.log(e.target)
+    let id = e.target.dataset.id
+    fetch(`http://localhost:3000/locations/${id}`)
+     .then(res=>res.json())
+     .then(object => object.recommendations.forEach(function(recommendation){
+       slapRecommendation(recommendation)
+
+     }))
+
+  }
+})
 
 signUpButton.addEventListener('click', e => {
   signUpForm()
@@ -203,12 +233,11 @@ signUpDiv.addEventListener('click', e=>{
       .then(res => res.json())
       .then(object => {
         object.recommendations.forEach(function(recommendation){
-          slapRecommendation(recommendation)
+          showMyRecommendation(recommendation)
         })
       })
   }
 })
-
 
 
 if (localStorage.id){
@@ -219,14 +248,15 @@ if (localStorage.id){
       logOutButton()
       writeReview()
     })
-} 
+}
 
 function writeReview(){
   let writeReviewButton = signUpDiv.querySelector('#write-review-button')
   writeReviewButton.addEventListener('click', e =>{
-    // console.log(e.target);
-    main.innerHTML = ""
+    console.log(e.target);
+    locationViewDiv.innerHTML =""
     fetchLocations()
+    locationViewDiv.innerHTML += "<h3> Click a location to make a review</h3>"
     main.addEventListener('click', e=> {
       if(e.target.id === 'location'){
         let locationId = parseInt(e.target.dataset.id)
