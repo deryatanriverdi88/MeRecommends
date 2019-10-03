@@ -1,11 +1,12 @@
 let body = document.querySelector("body")
 let main = document.getElementById("main")
-let writeReviewButton = document.getElementById('write-review-button')
+
 let signUpButton = document.getElementById('sign-up-button')
 let signInButton = document.getElementById('sign-in-button')
 let signUpDiv = document.getElementById("sign-div")
 let h1 = document.querySelector("h1")
 let userShowDiv = document.querySelector("#user-show-div")
+
 
 
 
@@ -102,6 +103,7 @@ function slapUser(user){
   <button data-id="${user.id}"id="edit"> Edit Profile </button>
   <button data-id="${user.id}" id="delete"> Delete Profile </button>
   <button data-id="${user.id}" id="my-reviews"> See My Reviews </button>
+  <button data-id="${user.id}" id="write-review-button"> Make A Review </button>
   `
 }
 
@@ -136,6 +138,7 @@ function logOutButton(){
   logOutButton.addEventListener('click', e=>{
     localStorage.clear()
     signUpDiv.innerHTML = ""
+    main.innerHTML = ""
   })
 }
 
@@ -150,6 +153,7 @@ signUpButton.addEventListener('click', e => {
     e.preventDefault()
     postFetchForSignUp()
     logOutButton()
+    writeReview()
   })
 })
 
@@ -172,6 +176,7 @@ signInButton.addEventListener('click', e => {
       }
       localStorage.id = user.id
       logOutButton()
+      writeReview()
 
    })
   })
@@ -196,61 +201,15 @@ signUpDiv.addEventListener('click', e=>{
   } else if (e.target.id === "my-reviews"){
     fetch(`http://localhost:3000/users/${localStorage.id}`)
       .then(res => res.json())
-      .then(object => console.log(object))
+      .then(object => {
+        object.recommendations.forEach(function(recommendation){
+          slapRecommendation(recommendation)
+        })
+      })
   }
 })
 
 
-writeReviewButton.addEventListener('click', e =>{
-  main.innerHTML = ""
-  fetchLocations()
-  main.addEventListener('click', e=> {
-    if(e.target.id === 'location'){
-      let locationId = parseInt(e.target.dataset.id)
-      let userId = localStorage.id
-      reviewForm(userId, locationId)
-      let formforReview = document.querySelector(".new-review")
-      formforReview.addEventListener('submit', function(e){  /// THEN I ADD A EVENT LISTENER TO THE FORM
-        e.preventDefault()
-       let typeOf = document.querySelector("#type-of") /// THEN I FIND THE INPUTS
-       let description = document.querySelector("#description")
-       let priceRange = document.querySelector("#price-range")
-       let rate = document.querySelector("#rate")
-       let place = document.querySelector("#place")
-
-       fetch("http://localhost:3000/recommendations", { /// THEN I MAKE A POST FETCH TO RECOMMENDATIONS WITH DATA I COLLECTED
-         method: 'POST',
-         headers: {
-           'Content-Type':"application/json",
-           'Accept':'application/json'
-         },
-         body: JSON.stringify({
-           user_id: userId,
-           location_id: locationId,
-           type_of: typeOf.value,
-           description: description.value,
-           price_range: priceRange.value,
-           rate: rate.value,
-           place: place.value
-         }) /// This closes => body: JSON.stringify
-
-       }) /// This closes => fetch("http://localhost:3000/recommendations"
-
-       .then(res=>res.json())
-       .then(recommendation => {
-        slapRecommendation(recommendation) /// THEN I SLAP RECOMMENDATIONS ON TO THE DOM
-       })
-
-       typeOf.value = ""
-       description.value = ""
-       priceRange.value = ""
-       rate.value =""
-       place.value =""
-
-     })  /// This closes => formforReview.addEventListener
-    }
-  })
-})
 
 if (localStorage.id){
   fetch(`http://localhost:3000/users/${localStorage.id}`)
@@ -258,9 +217,63 @@ if (localStorage.id){
     .then(user => {
       slapUser(user)
       logOutButton()
+      writeReview()
     })
+} 
 
+function writeReview(){
+  let writeReviewButton = signUpDiv.querySelector('#write-review-button')
+  writeReviewButton.addEventListener('click', e =>{
+    // console.log(e.target);
+    main.innerHTML = ""
+    fetchLocations()
+    main.addEventListener('click', e=> {
+      if(e.target.id === 'location'){
+        let locationId = parseInt(e.target.dataset.id)
+        let userId = localStorage.id
+        reviewForm(userId, locationId)
+        let formforReview = document.querySelector(".new-review")
+        formforReview.addEventListener('submit', function(e){  /// THEN I ADD A EVENT LISTENER TO THE FORM
+          e.preventDefault()
+         let typeOf = document.querySelector("#type-of") /// THEN I FIND THE INPUTS
+         let description = document.querySelector("#description")
+         let priceRange = document.querySelector("#price-range")
+         let rate = document.querySelector("#rate")
+         let place = document.querySelector("#place")
+
+         fetch("http://localhost:3000/recommendations", { /// THEN I MAKE A POST FETCH TO RECOMMENDATIONS WITH DATA I COLLECTED
+           method: 'POST',
+           headers: {
+             'Content-Type':"application/json",
+             'Accept':'application/json'
+           },
+           body: JSON.stringify({
+             user_id: userId,
+             location_id: locationId,
+             type_of: typeOf.value,
+             description: description.value,
+             price_range: priceRange.value,
+             rate: rate.value,
+             place: place.value
+           }) /// This closes => body: JSON.stringify
+
+         }) /// This closes => fetch("http://localhost:3000/recommendations"
+
+         .then(res=>res.json())
+         .then(recommendation => {
+          slapRecommendation(recommendation) /// THEN I SLAP RECOMMENDATIONS ON TO THE DOM
+         })
+
+         typeOf.value = ""
+         description.value = ""
+         priceRange.value = ""
+         rate.value =""
+         place.value =""
+
+       })  /// This closes => formforReview.addEventListener
+      }
+    })
+  })
 }
-
 
 // debugger
