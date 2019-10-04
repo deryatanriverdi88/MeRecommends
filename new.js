@@ -148,10 +148,7 @@ function showMyRecommendation(recommendation){
        <li> Rate: ${recommendation.rate}</li>
        <li> Price Range: ${recommendation.price_range}</li>
        <button data-id="${recommendation.id}" class="delete-recommendation"> Delete your recommendation </button>
-    </ul>  <br>
-
-    `
-    }
+    </ul>  <br>  `  }
 
 function fetchLocations(){
   fetch('http://localhost:3000/locations')
@@ -165,28 +162,23 @@ function fetchLocations(){
 fetchLocations()
 
 function logOutButton(){
-  let logOutButton = document.createElement("button")
-  logOutButton.className = ".log-out-button"
-  logOutButton.innerText = "Log Out"
-  signDiv.append(logOutButton)
-  logOutButton.addEventListener('click', e=>{
-    localStorage.clear()
-    signDiv.innerHTML = ""
-    locationViewDiv.innerHTML = ""
-    pleaseDiseppearUl.style.display = "inline-block"
-    fetchLocations()
-    signUpButton.style.display = "inline-block"
-    signInButton.style.display ="inline-block"
-  })
+ let logOutButton = document.createElement("button")
+ logOutButton.className = ".log-out-button"
+ logOutButton.innerText = "Log Out"
+ signDiv.append(logOutButton)
+ logOutButton.addEventListener('click', e=>{
+   localStorage.clear()
+   signDiv.innerHTML = ""
+   locationViewDiv.innerHTML = ""
+   pleaseDiseppearUl.style.display = "inline-block"
+   signUpButton.style.display = "inline-block"
+   signInButton.style.display ="inline-block"
+   fetchLocations()
+ })
 }
 
-function createGoBackButton() {
-  let goBackButton = document.createElement("button")
-  goBackButton.className = "go-back-please"
-  goBackButton.innerText = "Go Back!"
+showMyReview.innerHTML = ""
 
-  locationViewDiv.append(goBackButton)
-}
 
 locationViewDiv.addEventListener('click', e => {
     let reviewActive = locationViewDiv.querySelector(".review-active")
@@ -202,7 +194,10 @@ locationViewDiv.addEventListener('click', e => {
   }
 })
 
+/// Sign up ///
 signUpButton.addEventListener('click', e => {
+  signDiv.innerHTML = ""
+  locationViewDiv.innerHTML = ""
   signUpForm()
   let form = signDiv.querySelector('.sign-up')
   let nameInput = document.querySelector("#name")
@@ -212,15 +207,18 @@ signUpButton.addEventListener('click', e => {
   form.addEventListener('submit', e =>{
     e.preventDefault()
     postFetchForSignUp()
-    // logOutButton()
-    locationViewDiv.innerHTML = ""
+    logOutButton()
+    signDiv.innerHTML = ""
+locationViewDiv.innerHTML = ""
     writeReview()
     pleaseDiseppearUl.style.display = "none"
+    fetchLocations()
 
   })
 })
 
 signInButton.addEventListener('click', e => {
+  signDiv.innerHTML = ""
   signInForm()
   let form = signDiv.querySelector('.sign-in')
   let usernameInput = document.querySelector("#username")
@@ -235,6 +233,7 @@ signInButton.addEventListener('click', e => {
           return user.username === usernameInput.value
         })
       if (user){
+        signDiv.innerHTML = ""
         slapUser(user)
         localStorage.id = user.id
         logOutButton()
@@ -252,6 +251,8 @@ signInButton.addEventListener('click', e => {
   })
 })
 
+
+/// edit, delete, mey-reviews buttons happen here ///
 signDiv.addEventListener('click', e=>{
   if(e.target.id === "edit"){
     editForm()
@@ -282,6 +283,7 @@ signDiv.addEventListener('click', e=>{
   }
 })
 
+/// delete actions ///
 showMyReview.addEventListener('click', e => {
 
   if(e.target.className === "delete-recommendation"){
@@ -289,10 +291,9 @@ showMyReview.addEventListener('click', e => {
       method: 'DELETE'
     })
     e.target.parentElement.remove()
-    showMyReview.innerHTML += `<p> Review Deleted! </p>`
   }
 })
-
+/// like action happens here ///
 recommendationUl.addEventListener('click', e => {
   // e.preventDefault()
   if(e.target.className === "like-button"){
@@ -338,13 +339,13 @@ function writeReview(){
   document.body.addEventListener('click', e =>{
 
     if (e.target.id === "write-review-button"){
-    locationViewDiv.innerHTML =""
+    locationViewDiv.innerHTML = ""
     fetchLocations()
     locationViewDiv.innerHTML += "<h3 class='review-active'> Click a location to make a review</h3>"
-    const thisThing = createGoBackButton()
+
     let reviewActive = locationViewDiv.querySelector(".review-active")
     main.addEventListener('click', e=> {
-      if(e.target.classList.contains('location') && reviewActive){
+      if (localStorage.length !== 0 && e.target.classList.contains('location')){
         let locationId = parseInt(e.target.dataset.id)
         let userId = localStorage.id
         reviewForm(userId, locationId)
@@ -381,15 +382,12 @@ function writeReview(){
 
 
          })
-         locationViewDiv.innerHTML = ""
-         fetchLocations()
+         // locationViewDiv.innerHTML = ""
+         // fetchLocations()
 
        })  /// This closes => formforReview.addEventListener
      }
     })
-  } else if (e.target.className === "go-back-please") {
-    locationViewDiv.innerHTML = ""
-    fetchLocations()
-  }
+   }
   })
 }
