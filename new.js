@@ -48,7 +48,7 @@ function editForm(){
 }
 
 function reviewForm(userId, locationId){
-  main.innerHTML = `<form class="new-review">
+  locationViewDiv.innerHTML = `<form class="new-review">
         <input data-id= "${userId}"id="user" type="hidden" name="user" />
         <input data-id= "${locationId}"id="location" type="hidden" name="location" p/>
         <label for="type_of"> Type </label>
@@ -122,7 +122,7 @@ function slapUser(user){
 }
 
 function slapLocation(location){
-  locationViewDiv.innerHTML += `<ul><li id="location" data-id="${location.id}"> ${location.name} / ${location.state}</li> </ul>`
+  locationViewDiv.innerHTML += `<ul><li class="location" data-id="${location.id}"> ${location.name} / ${location.state}</li> </ul>`
 }
 
 function slapRecommendation(recommendation){
@@ -181,7 +181,8 @@ function logOutButton(){
 
 locationViewDiv.addEventListener('click', e => {
     recommendationUl.innerHTML = ""
-  if(e.target.tagName === 'LI'){
+    let reviewActive = locationViewDiv.querySelector(".review-active")
+  if(e.target.tagName === 'LI' && !reviewActive){
     let id = e.target.dataset.id
     fetch(`http://localhost:3000/locations/${id}`)
      .then(res=>res.json())
@@ -264,6 +265,7 @@ signDiv.addEventListener('click', e=>{
     fetch(`http://localhost:3000/users/${localStorage.id}`)
       .then(res => res.json())
       .then(object => {
+        showMyReview.innerHTML = ""
         object.recommendations.forEach(function(recommendation){
           showMyRecommendation(recommendation)
         })
@@ -277,7 +279,7 @@ showMyReview.addEventListener('click', e => {
     fetch(`http://localhost:3000/recommendations/${e.target.dataset.id}`, {
       method: 'DELETE'
     })
-    
+
     showMyReview.innerHTML += `<p> Review Deleted! </p>`
   }
 })
@@ -327,9 +329,10 @@ function writeReview(){
     if (e.target.id === "write-review-button"){
     locationViewDiv.innerHTML =""
     fetchLocations()
-    locationViewDiv.innerHTML += "<h3> Click a location to make a review</h3>"
+    locationViewDiv.innerHTML += "<h3 class='review-active'> Click a location to make a review</h3>"
+    let reviewActive = locationViewDiv.querySelector(".review-active")
     main.addEventListener('click', e=> {
-      if(e.target.id === 'location'){
+      if(e.target.classList.contains('location') && reviewActive){
         let locationId = parseInt(e.target.dataset.id)
         let userId = localStorage.id
         reviewForm(userId, locationId)
@@ -363,9 +366,8 @@ function writeReview(){
          .then(res=>res.json())
          .then(recommendation => {
           showMyRecommendation(recommendation) /// THEN I SLAP RECOMMENDATIONS ON TO THE DOM
-
-          main.innerHTML = ""
           fetchLocations()
+
          })
 
          // typeOf.value = ""
@@ -373,8 +375,7 @@ function writeReview(){
          // priceRange.value = ""
          // rate.value =""
          // place.value =""
-         // main.innerHTML = ""
-         // fetchLocations()
+
        })  /// This closes => formforReview.addEventListener
       }
     })
