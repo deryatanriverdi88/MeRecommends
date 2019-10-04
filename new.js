@@ -43,7 +43,7 @@ function editForm(){
   signDiv.innerHTML = `<form class="edit-form">
         <input id="name" type="text" name="name" placeholder="Your name" autocomplete="off" />
         <input id="username" type="text" name="username" placeholder="Your username" autocomplete="off" />
-        <input type="submit" value="Sign Up" class="sign-up-submit">
+        <input type="submit" value="Edit" class="sign-up-submit">
       </form>`
 }
 
@@ -126,7 +126,7 @@ function slapLocation(location){
 }
 
 function slapRecommendation(recommendation){
-  recommendationUl.innerHTML += ""
+  // recommendationUl.innerHTML += ""
   locationViewDiv.append(recommendationUl) //why?
   recommendationUl.innerHTML +=`
   <ul class="recommendation" data-id="${recommendation.id}">
@@ -141,16 +141,17 @@ function slapRecommendation(recommendation){
 function showMyRecommendation(recommendation){
     // locationViewDiv.append(recommendationUl) //why?
     showMyReview.innerHTML +=`
+    <ul data-id="${recommendation.id}">
        <li> Type of: ${recommendation.type_of}</li>
        <li> Place: ${recommendation.place}</li>
        <li> Description: ${recommendation.description}</li>
        <li> Rate: ${recommendation.rate}</li>
        <li> Price Range: ${recommendation.price_range}</li>
+       <button data-id="${recommendation.id}" class="delete-recommendation"> Delete your recommendation </button>
     </ul>  <br>
 
-    <button data-id="${recommendation.id}" id="delete-recommendation"> Delete your recommendation </button>`
+    `
     }
-
 
 function fetchLocations(){
   fetch('http://localhost:3000/locations')
@@ -179,10 +180,18 @@ function logOutButton(){
   })
 }
 
+function createGoBackButton() {
+  let goBackButton = document.createElement("button")
+  goBackButton.className = "go-back-please"
+  goBackButton.innerText = "Go Back!"
+
+  locationViewDiv.append(goBackButton)
+}
+
 locationViewDiv.addEventListener('click', e => {
-    recommendationUl.innerHTML = ""
     let reviewActive = locationViewDiv.querySelector(".review-active")
   if(e.target.tagName === 'LI' && !reviewActive){
+    recommendationUl.innerHTML = ""
     let id = e.target.dataset.id
     fetch(`http://localhost:3000/locations/${id}`)
      .then(res=>res.json())
@@ -275,11 +284,11 @@ signDiv.addEventListener('click', e=>{
 
 showMyReview.addEventListener('click', e => {
 
-  if(e.target.id === "delete-recommendation"){
+  if(e.target.className === "delete-recommendation"){
     fetch(`http://localhost:3000/recommendations/${e.target.dataset.id}`, {
       method: 'DELETE'
     })
-
+    e.target.parentElement.remove()
     showMyReview.innerHTML += `<p> Review Deleted! </p>`
   }
 })
@@ -287,10 +296,14 @@ showMyReview.addEventListener('click', e => {
 recommendationUl.addEventListener('click', e => {
   // e.preventDefault()
   if(e.target.className === "like-button"){
-    let likeAmount = e.target.dataset.likes
+    // let likeAmount = e.target.dataset.likes
+    let likeCounter = e.target.querySelector(".like")
+    likeAmount = parseInt(likeCounter.innerText)
     likeAmount++
+    // let likeCounter = e.target.querySelector(".like")
+    likeCounter.innerText = likeAmount
     let id = e.target.dataset.id
-    let likeSpan =  recommendationUl.querySelector('.like')
+    let likeButton =  recommendationUl.querySelector('.like-button')
 
     fetch(`http://localhost:3000/recommendations/${id}`, {
       method: 'PATCH',
@@ -304,8 +317,6 @@ recommendationUl.addEventListener('click', e => {
     })
     .then(res => res.json())
     .then(object =>{
-
-      slapRecommendation(object)
     })
   }
 })
@@ -324,12 +335,13 @@ if (localStorage.id){
 
 function writeReview(){
   let writeReviewButton = signDiv.querySelector('#write-review-button')
-  signDiv.addEventListener('click', e =>{
+  document.body.addEventListener('click', e =>{
 
     if (e.target.id === "write-review-button"){
     locationViewDiv.innerHTML =""
     fetchLocations()
     locationViewDiv.innerHTML += "<h3 class='review-active'> Click a location to make a review</h3>"
+    const thisThing = createGoBackButton()
     let reviewActive = locationViewDiv.querySelector(".review-active")
     main.addEventListener('click', e=> {
       if(e.target.classList.contains('location') && reviewActive){
@@ -366,19 +378,18 @@ function writeReview(){
          .then(res=>res.json())
          .then(recommendation => {
           showMyRecommendation(recommendation) /// THEN I SLAP RECOMMENDATIONS ON TO THE DOM
-          fetchLocations()
+
 
          })
-
-         // typeOf.value = ""
-         // description.value = ""
-         // priceRange.value = ""
-         // rate.value =""
-         // place.value =""
+         locationViewDiv.innerHTML = ""
+         fetchLocations()
 
        })  /// This closes => formforReview.addEventListener
-      }
+     }
     })
+  } else if (e.target.className === "go-back-please") {
+    locationViewDiv.innerHTML = ""
+    fetchLocations()
   }
   })
 }
