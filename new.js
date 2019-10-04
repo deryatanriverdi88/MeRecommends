@@ -25,8 +25,8 @@ body.addEventListener('mouseover', function(e){
 function signUpForm(){
   signDiv.append(formDiv)
   formDiv.innerHTML = `<form class="sign-up">
-        <input id="name" type="text" name="name" placeholder="Your name" autocomplete="off" />
-        <input id="username" type="text" name="username" placeholder="Your username" autocomplete="off" />
+        <input id="name" type="text" name="name" placeholder="Your name" autocomplete="off" /><br>
+        <input id="username" type="text" name="username" placeholder="Your username" autocomplete="off" /><br>
         <input type="submit" value="Sign Up" class="sign-up-submit">
       </form>`
 }
@@ -111,7 +111,7 @@ function patchFetchForEdit() {
 }
 
 function slapUser(user){
-  signDiv.innerHTML += `<h2> Signed In User </h2><p data-id="${user.id}"> Name : ${user.name}<br> Username : ${user.username} </p>
+  signDiv.innerHTML += `<h2 id="signed-in-user"> Signed In User </h2><p class="user" data-id="${user.id}"> <span id="name-span"> Name : </span> ${user.name}</p> <p class="user"><span id="username-span"> Username :</span> ${user.username} </p>
   <button data-id="${user.id}"id="edit"> Edit Profile </button>
   <button data-id="${user.id}" id="delete"> Delete Profile </button>
   <button data-id="${user.id}" id="my-reviews"> See My Reviews </button>
@@ -145,9 +145,10 @@ function showMyRecommendation(recommendation){
        <li> Type of: ${recommendation.type_of}</li>
        <li> Place: ${recommendation.place}</li>
        <li> Description: ${recommendation.description}</li>
-       <li> Rate: ${recommendation.rate}</li>
+       <li class ="rate"> Rate: <span class="rate-span">${recommendation.rate}</span></li>
        <li> Price Range: ${recommendation.price_range}</li>
        <button data-id="${recommendation.id}" class="delete-recommendation"> Delete your recommendation </button>
+       <button data-id="${recommendation.id}" class="change-rate"> Make rating negative </button>
     </ul>  <br>  `  }
 
 function fetchLocations(){
@@ -160,10 +161,11 @@ function fetchLocations(){
 }
 
 fetchLocations()
+showMyReview.innerHTML = ""
 
 function logOutButton(){
  let logOutButton = document.createElement("button")
- logOutButton.className = ".log-out-button"
+ logOutButton.className = "log-out-button"
  logOutButton.innerText = "Log Out"
  signDiv.append(logOutButton)
  logOutButton.addEventListener('click', e=>{
@@ -176,8 +178,6 @@ function logOutButton(){
    fetchLocations()
  })
 }
-
-showMyReview.innerHTML = ""
 
 
 locationViewDiv.addEventListener('click', e => {
@@ -256,6 +256,7 @@ signInButton.addEventListener('click', e => {
 signDiv.addEventListener('click', e=>{
   if(e.target.id === "edit"){
     editForm()
+
     let form = signDiv.querySelector('.edit-form')
     let usernameInput = document.querySelector("#username")
     let name = document.querySelector("#name")
@@ -277,9 +278,9 @@ signDiv.addEventListener('click', e=>{
       .then(object => {
         showMyReview.innerHTML = ""
         object.recommendations.forEach(function(recommendation){
-          showMyRecommendation(recommendation)
-        })
+        showMyRecommendation(recommendation)
       })
+    })
   }
 })
 
@@ -318,10 +319,10 @@ recommendationUl.addEventListener('click', e => {
     })
     .then(res => res.json())
     .then(object =>{
+
     })
   }
 })
-
 
 if (localStorage.id){
   fetch(`http://localhost:3000/users/${localStorage.id}`)
@@ -391,3 +392,58 @@ function writeReview(){
    }
   })
 }
+
+
+let textWrapper = document.querySelector('.ml1 .letters');
+textWrapper.innerHTML = textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
+
+anime.timeline({loop: true})
+  .add({
+    targets: '.ml1 .letter',
+    scale: [0.3,1],
+    opacity: [0,1],
+    translateZ: 0,
+    easing: "easeOutExpo",
+    duration: 600,
+    delay: (el, i) => 70 * (i+1),
+  }).add({
+    targets: '.ml1 .line',
+    scaleX: [0,1],
+    opacity: [0.5,1],
+    easing: "easeOutExpo",
+    duration: 700,
+    offset: '-=875',
+    delay: (el, i, l) => 80 * (l - i)
+  }).add({
+    targets: '.ml1',
+    opacity: 0,
+    duration: 1000,
+    easing: "easeOutExpo",
+    delay: 1000
+  });
+
+
+
+  // showMyReview.addEventListener('click', e => {
+
+  //   if (e.target.className === 'change-rate'){
+  //     let rateSpan = showMyReview.querySelectorAll('.rate-span')
+  //     let id = e.target.dataset.id
+  //     rateValue = rateSpan.innerText
+  //     rateValue = parseInt(rateValue)
+  //     rateNegative = `-${rateValue}`
+  //     rateSpan.innerText = rateNegative
+  //     fetch(`http://localhost:3000/recommendations/${id}`, {
+  //       method: 'PATCH',
+  //       headers:{
+  //         'Content-Type':'application/json',
+  //         'Accept':'application/json'
+  //       },
+  //       body: JSON.stringify({
+  //         rate: rateNegative
+  //       })
+  //     })
+  //     // debugger
+  //   }
+  //
+  // })
