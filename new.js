@@ -5,12 +5,16 @@ let body = document.querySelector("body")
 let main = document.getElementById("main")
 let signUpButton = document.getElementById('sign-up-button')
 let signInButton = document.getElementById('sign-in-button')
-let signUpDiv = document.getElementById("sign-div")
+let signDiv = document.getElementById("sign-div")
 let h1 = document.querySelector("h1")
 let userShowDiv = document.querySelector("#user-show-div")
 let locationViewDiv = main.querySelector("#location-view")
 let recommendationUl = locationViewDiv.querySelector(".recommendation-ul")
 let showMyReview = document.getElementById("show-my-review")
+let pleaseDiseppearUl = document.querySelector(".please-diseppear")
+let formDiv = document.getElementById("form-div")
+
+// pleaseDiseppearUl.style.display = "none"
 
 
 
@@ -19,7 +23,8 @@ body.addEventListener('mouseover', function(e){
 })
 
 function signUpForm(){
-  signUpDiv.innerHTML = `<form class="sign-up">
+  signDiv.append(formDiv)
+  formDiv.innerHTML = `<form class="sign-up">
         <input id="name" type="text" name="name" placeholder="Your name" autocomplete="off" />
         <input id="username" type="text" name="username" placeholder="Your username" autocomplete="off" />
         <input type="submit" value="Sign Up" class="sign-up-submit">
@@ -27,14 +32,15 @@ function signUpForm(){
 }
 
 function signInForm(){
-  signUpDiv.innerHTML = `<form class="sign-in">
+  signDiv.append(formDiv)
+  formDiv.innerHTML = `<form class="sign-in">
         <input id="username" type="text" name="username" placeholder="Your username" autocomplete="off" />
         <input type="submit" value="Sign In" class="sign-in-submit">
       </form>`
 }
 
 function editForm(){
-  signUpDiv.innerHTML = `<form class="edit-form">
+  signDiv.innerHTML = `<form class="edit-form">
         <input id="name" type="text" name="name" placeholder="Your name" autocomplete="off" />
         <input id="username" type="text" name="username" placeholder="Your username" autocomplete="off" />
         <input type="submit" value="Sign Up" class="sign-up-submit">
@@ -100,16 +106,19 @@ function patchFetchForEdit() {
   .then(res=>res.json())
   .then(user => {
     slapUser(user)
+
   })
 }
 
 function slapUser(user){
-  signUpDiv.innerHTML += `<h2> Signed In User </h2><p data-id="${user.id}"> Name : ${user.name}<br> Username : ${user.username} </p>
+  signDiv.innerHTML += `<h2> Signed In User </h2><p data-id="${user.id}"> Name : ${user.name}<br> Username : ${user.username} </p>
   <button data-id="${user.id}"id="edit"> Edit Profile </button>
   <button data-id="${user.id}" id="delete"> Delete Profile </button>
   <button data-id="${user.id}" id="my-reviews"> See My Reviews </button>
   <button data-id="${user.id}" id="write-review-button"> Make A Review </button>
   `
+  signUpButton.style.display = "none"
+  signInButton.style.display ="none"
 }
 
 function slapLocation(location){
@@ -131,7 +140,6 @@ function slapRecommendation(recommendation){
 
 function showMyRecommendation(recommendation){
     // locationViewDiv.append(recommendationUl) //why?
-    showMyReview.innerHTML =""
     showMyReview.innerHTML +=`
        <li> Type of: ${recommendation.type_of}</li>
        <li> Place: ${recommendation.place}</li>
@@ -142,6 +150,7 @@ function showMyRecommendation(recommendation){
 
     <button data-id="${recommendation.id}" id="delete-recommendation"> Delete your recommendation </button>`
     }
+
 
 function fetchLocations(){
   fetch('http://localhost:3000/locations')
@@ -158,11 +167,15 @@ function logOutButton(){
   let logOutButton = document.createElement("button")
   logOutButton.className = ".log-out-button"
   logOutButton.innerText = "Log Out"
-  signUpDiv.append(logOutButton)
+  signDiv.append(logOutButton)
   logOutButton.addEventListener('click', e=>{
     localStorage.clear()
-    signUpDiv.innerHTML = ""
+    signDiv.innerHTML = ""
     locationViewDiv.innerHTML = ""
+    pleaseDiseppearUl.style.display = "inline-block"
+    fetchLocations()
+    signUpButton.style.display = "inline-block"
+    signInButton.style.display ="inline-block"
   })
 }
 
@@ -181,23 +194,28 @@ locationViewDiv.addEventListener('click', e => {
 
 signUpButton.addEventListener('click', e => {
   signUpForm()
-  let form = signUpDiv.querySelector('.sign-up')
+  let form = signDiv.querySelector('.sign-up')
   let nameInput = document.querySelector("#name")
   let usernameInput = document.querySelector("#username")
+  signUpButton.style.display = "none"
+  signInButton.style.display = "inline-block"
   form.addEventListener('submit', e =>{
     e.preventDefault()
     postFetchForSignUp()
-    logOutButton()
+    // logOutButton()
     locationViewDiv.innerHTML = ""
     writeReview()
+    pleaseDiseppearUl.style.display = "none"
 
   })
 })
 
 signInButton.addEventListener('click', e => {
   signInForm()
-  let form = signUpDiv.querySelector('.sign-in')
+  let form = signDiv.querySelector('.sign-in')
   let usernameInput = document.querySelector("#username")
+  signInButton.style.display = "none"
+  signUpButton.style.display = "inline-block"
   form.addEventListener('submit', e=>{
     e.preventDefault()
     fetch('http://localhost:3000/users') /// THEN I MAKE A FETCH REQUEST TO USERS
@@ -211,9 +229,10 @@ signInButton.addEventListener('click', e => {
         localStorage.id = user.id
         logOutButton()
         writeReview()
+        // pleaseDiseppearUl.style.display = "none"
 
       } else {
-        signUpDiv.innerHTML = `<p>This username does not exist</p>`
+        signDiv.innerHTML = `<p>This username does not exist</p>`
       }
       // localStorage.id = user.id
       // logOutButton()
@@ -223,10 +242,10 @@ signInButton.addEventListener('click', e => {
   })
 })
 
-signUpDiv.addEventListener('click', e=>{
+signDiv.addEventListener('click', e=>{
   if(e.target.id === "edit"){
     editForm()
-    let form = signUpDiv.querySelector('.edit-form')
+    let form = signDiv.querySelector('.edit-form')
     let usernameInput = document.querySelector("#username")
     let name = document.querySelector("#name")
     form.addEventListener('submit', e=> {
@@ -237,7 +256,7 @@ signUpDiv.addEventListener('click', e=>{
     fetch(`http://localhost:3000/users/${localStorage.id}`, {
       method: 'DELETE'
     })
-    signUpDiv.innerHTML = `<p> Account Deleted! </p>`
+    signDiv.innerHTML = `<p> Account Deleted! </p>`
     localStorage.clear()
 
 
@@ -253,11 +272,13 @@ signUpDiv.addEventListener('click', e=>{
 })
 
 showMyReview.addEventListener('click', e => {
+
   if(e.target.id === "delete-recommendation"){
     fetch(`http://localhost:3000/recommendations/${e.target.dataset.id}`, {
       method: 'DELETE'
     })
-    showMyReview.innerHTML = `<p> Review Deleted! </p>`
+    
+    showMyReview.innerHTML += `<p> Review Deleted! </p>`
   }
 })
 
@@ -281,6 +302,7 @@ recommendationUl.addEventListener('click', e => {
     })
     .then(res => res.json())
     .then(object =>{
+
       slapRecommendation(object)
     })
   }
@@ -299,8 +321,8 @@ if (localStorage.id){
 
 
 function writeReview(){
-  let writeReviewButton = signUpDiv.querySelector('#write-review-button')
-  signUpDiv.addEventListener('click', e =>{
+  let writeReviewButton = signDiv.querySelector('#write-review-button')
+  signDiv.addEventListener('click', e =>{
 
     if (e.target.id === "write-review-button"){
     locationViewDiv.innerHTML =""
@@ -341,14 +363,18 @@ function writeReview(){
          .then(res=>res.json())
          .then(recommendation => {
           showMyRecommendation(recommendation) /// THEN I SLAP RECOMMENDATIONS ON TO THE DOM
+
+          main.innerHTML = ""
+          fetchLocations()
          })
 
-         typeOf.value = ""
-         description.value = ""
-         priceRange.value = ""
-         rate.value =""
-         place.value =""
-
+         // typeOf.value = ""
+         // description.value = ""
+         // priceRange.value = ""
+         // rate.value =""
+         // place.value =""
+         // main.innerHTML = ""
+         // fetchLocations()
        })  /// This closes => formforReview.addEventListener
       }
     })
