@@ -8,6 +8,8 @@ header{
 
 body{
   font-family: 'Cinzel', serif;
+  margin: 5px auto;
+  position: relative;
 }
 nav{
   grid-area: nav;
@@ -18,9 +20,8 @@ nav{
 #main{
   grid-area: main;
   /* background-color: lightblue; */
-  padding: 20px;
-  margin:0 60px;
-  width:50%;
+  margin:0 auto;
+  width:100%;
 }
 
 #sign-up-button, #sign-in-button{
@@ -42,14 +43,19 @@ nav{
     padding: 40px;
 }
 
+#sign-div{
+  border-radius: 15px;
+  /* box-shadow: 5px 10px 18px #888888; */
+}
 #edit, #delete, #my-reviews, #write-review-button, .log-out-button{
-  display: block;
+  display: inline-block;
+  width: 25%;
 
 }
 
 #name-span{
   display: inline-block;
-  width: 80px;
+  width: 93px;
   font-weight: bold;
 }
 #username-span{
@@ -60,10 +66,9 @@ p#user{
   padding:10px;
 }
 
-footer{
-  grid-area: footer;
-  /* background-color: green; */
-
+.bold{
+  font-weight: bold;
+  color: darkblue;
 }
 
 .grid-container {
@@ -74,6 +79,43 @@ footer{
     'footer footer footer footer footer footer';
   grid-gap: 10px;
   padding: 10px;
+}
+
+#location-view{
+  border: 1em solid #fff;
+  border-bottom: 4em solid #fff;
+  border-radius: .25em;
+  box-shadow: 1em 1em 2em .25em rgba(0,0,0,.2);
+  margin: 0 auto;
+  /* transform: rotateZ(+2deg); */
+  max-width: 600px;
+  width: 90%;
+  padding :10px;
+  height:40vh;
+}
+div.recommendation-ul{
+  position: absolute;
+  left: 40vh;
+  top: 50vh;
+  overflow: scroll;
+
+  z-index: 1;
+  border-radius: 15px;
+  padding: 20px;
+}
+
+.recommendation{
+  background-color: rgba(199, 217, 204, 0.5);
+  border-radius: 15px;
+
+}
+
+.like-button{
+  margin-left:50px;
+  margin-bottom: 10px;
+  margin-top:10px;
+  padding: 10px;
+  border-radius: 15px;
 }
 
 header h1{

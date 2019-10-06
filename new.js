@@ -13,9 +13,9 @@ let recommendationUl = locationViewDiv.querySelector(".recommendation-ul")
 let showMyReview = document.getElementById("show-my-review")
 let pleaseDiseppearUl = document.querySelector(".please-diseppear")
 let formDiv = document.getElementById("form-div")
+let closeWindow = document.getElementsByClassName("close-window")
 
 // pleaseDiseppearUl.style.display = "none"
-
 
 
 body.addEventListener('mouseover', function(e){
@@ -122,33 +122,38 @@ function slapUser(user){
 }
 
 function slapLocation(location){
-  locationViewDiv.innerHTML += `<ul><li class="location" data-id="${location.id}"> ${location.name} / ${location.state}</li> </ul>`
-}
+locationViewDiv.innerHTML +=`
+<div>
+ <ul>
+<li class="location" data-id="${location.id}"> ${location.name} / ${location.state}</li>
+ </ul>
+ </div>`}
 
 function slapRecommendation(recommendation){
   // recommendationUl.innerHTML += ""
   locationViewDiv.append(recommendationUl) //why?
   recommendationUl.innerHTML +=`
   <ul class="recommendation" data-id="${recommendation.id}">
-     <li> Type of: ${recommendation.type_of}</li>
-     <li> Place: ${recommendation.place}</li>
-     <li> Description: ${recommendation.description}</li>
-     <li> Rate: ${recommendation.rate}</li>
-     <li> Price Range: ${recommendation.price_range}</li>
+      <button class="close-window"> X </button>
+     <li> <span class="bold">Type of:</span> ${recommendation.type_of}</li>
+     <li> <span class="bold"> Place:</span>  ${recommendation.place}</li>
+     <li> <span class="bold"> Description:</span> ${recommendation.description}</li>
+      <li> <span class="bold"> Prige Range:</span> ${recommendation.price_range}</li>
+      <button data-id="${recommendation.id}" data-likes="${recommendation.like}" class="like-button"> <span class="like">${recommendation.like} </span>Like </button>
   </ul>
-  <button data-id="${recommendation.id}" data-likes="${recommendation.like}" class="like-button"> <span class="like">${recommendation.like} </span>Like </button> `}
+  `}
 
 function showMyRecommendation(recommendation){
     // locationViewDiv.append(recommendationUl) //why?
     showMyReview.innerHTML +=`
     <ul data-id="${recommendation.id}">
-       <li> Type of: ${recommendation.type_of}</li>
-       <li> Place: ${recommendation.place}</li>
-       <li> Description: ${recommendation.description}</li>
-       <li class ="rate"> Rate: <span class="rate-span">${recommendation.rate}</span></li>
-       <li> Price Range: ${recommendation.price_range}</li>
+       <li> <span class="bold">Type of:</span> ${recommendation.type_of}</li>
+       <li> <span class="bold"> Place:</span>  ${recommendation.place}</li>
+       <li> <span class="bold"> Rate:</span> ${recommendation.rate}</li>
+       <li> <span class="bold"> Description:</span> ${recommendation.description}</li>
+       <li> <span class="bold"> Prige Range:</span> ${recommendation.price_range}</li>
        <button data-id="${recommendation.id}" class="delete-recommendation"> Delete your recommendation </button>
-       <button data-id="${recommendation.id}" class="change-rate"> Make rating negative </button>
+
     </ul>  <br>  `  }
 
 function fetchLocations(){
@@ -181,7 +186,7 @@ function logOutButton(){
 
 
 locationViewDiv.addEventListener('click', e => {
-    let reviewActive = locationViewDiv.querySelector(".review-active")
+  let reviewActive = locationViewDiv.querySelector(".review-active")
   if(e.target.tagName === 'LI' && !reviewActive){
     recommendationUl.innerHTML = ""
     let id = e.target.dataset.id
@@ -190,14 +195,14 @@ locationViewDiv.addEventListener('click', e => {
      .then(object => object.recommendations.forEach(function(recommendation){
        slapRecommendation(recommendation)
      }))
-
   }
 })
+
 
 /// Sign up ///
 signUpButton.addEventListener('click', e => {
   signDiv.innerHTML = ""
-  locationViewDiv.innerHTML = ""
+  // locationViewDiv.innerHTML = ""
   signUpForm()
   let form = signDiv.querySelector('.sign-up')
   let nameInput = document.querySelector("#name")
@@ -324,6 +329,8 @@ recommendationUl.addEventListener('click', e => {
   }
 })
 
+
+
 if (localStorage.id){
   fetch(`http://localhost:3000/users/${localStorage.id}`)
     .then(res=>res.json())
@@ -340,10 +347,10 @@ function writeReview(){
   document.body.addEventListener('click', e =>{
 
     if (e.target.id === "write-review-button"){
-    locationViewDiv.innerHTML = ""
     fetchLocations()
+    locationViewDiv.innerHTML = ""
     locationViewDiv.innerHTML += "<h3 class='review-active'> Click a location to make a review</h3>"
-
+  // debugger
     let reviewActive = locationViewDiv.querySelector(".review-active")
     main.addEventListener('click', e=> {
       if (localStorage.length !== 0 && e.target.classList.contains('location')){
@@ -379,12 +386,14 @@ function writeReview(){
 
          .then(res=>res.json())
          .then(recommendation => {
-          showMyRecommendation(recommendation) /// THEN I SLAP RECOMMENDATIONS ON TO THE DOM
-
-
+          showMyRecommendation(recommendation)
+          /// THEN I SLAP RECOMMENDATIONS ON TO THE DOM
          })
-         // locationViewDiv.innerHTML = ""
-         // fetchLocations()
+             typeOf.value = ""
+             description.value = ""
+             priceRange.value = ""
+             rate.value =""
+             place.value =""
 
        })  /// This closes => formforReview.addEventListener
      }
@@ -392,6 +401,7 @@ function writeReview(){
    }
   })
 }
+
 
 
 let textWrapper = document.querySelector('.ml1 .letters');
@@ -421,7 +431,6 @@ anime.timeline({loop: true})
     easing: "easeOutExpo",
     delay: 1000
   });
-
 
 
   // showMyReview.addEventListener('click', e => {
